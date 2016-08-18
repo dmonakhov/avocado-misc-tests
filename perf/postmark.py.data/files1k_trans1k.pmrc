@@ -1,0 +1,4 @@
+set number 1000
+set transactions 1000
+run
+quit

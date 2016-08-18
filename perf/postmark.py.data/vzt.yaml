@@ -1,0 +1,5 @@
+jobs: !mux
+  short:
+    config : vzt-1k-1k.pmrc
+  long:
+    config : vzt-1M-1M.pmrc

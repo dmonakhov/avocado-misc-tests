@@ -1,0 +1,4 @@
+set number 1000000
+set transactions 1000000
+run
+quit
