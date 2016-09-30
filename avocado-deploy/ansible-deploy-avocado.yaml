@@ -1,0 +1,48 @@
+---
+
+- hosts: avocado
+  vars:
+    root_dir: /devel/adeploy
+    av_repo: https://github.com/dmonakhov/avocado.git
+    av_test_repo: https://github.com/dmonakhov/avocado-misc-tests.git
+    av_tag: inst
+
+  tasks:
+    - name: Create install root dir
+      file: path={{ root_dir }} state=directory  mode=0755
+        
+    - name: git update avocado framework {{ av_repo }}
+      git:  repo={{ av_repo }} version={{ av_tag }} dest={{ root_dir }}/avocado/avocado-framework force=true
+
+    - name: git update avocado tests {{ av_test_repo }}
+      git: repo={{ av_test_repo }} version={{ av_tag }} dest={{ root_dir }}/avocado-misc-tests force=true
+        
+    - name: Install requirements
+      dnf: state=latest name={{ item }}
+      with_items:
+        - git
+        - gcc
+        - python-devel
+        - python-pip
+        - libvirt-devel
+        - libyaml-devel
+        - redhat-rpm-config
+        - rsync
+        - xz-devel
+      
+    - name : Install avocado
+      make: chdir={{ root_dir }}/avocado/avocado-framework target={{ item }}
+      with_items:
+        - requirements
+        - install
+
+    - name : Install avocados email plugin
+      make: chdir={{ root_dir }}/avocado/avocado-framework/examples/plugins/job-pre-post/mail target=install
+
+    - name : Install archive plugin
+      file: src=/{{ root_dir }}/avocado/avocado-framework/{{ item }} dest=/{{ item}} state=link
+      with_items:
+        - etc/avocado/scripts/job/post.d/001-archive
+
+
+#

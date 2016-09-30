@@ -11,19 +11,17 @@
 #
 # See LICENSE for more details.
 #
-# Copyright: 2016 
+# Copyright: 2016
 # Author: Dmitry Monakhov <dmonakhov@openvz.org>
 #
 
 import os
-import logging
 
 from avocado import Test
 from avocado import main
 from avocado.utils import archive
 from avocado.utils import process
 from avocado.utils import build
-from avocado.utils import kernel
 from avocado.utils.software_manager import SoftwareManager
 from avocado.utils import distro
 
@@ -47,11 +45,11 @@ class Smatch(Test):
         src_commit = '78b2ea6'
 
         deps = ['make', 'gcc']
-        header_deps  = ['/usr/include/sqlite3.h',
-                        '/usr/include/llvm' ]
+        header_deps = ['/usr/include/sqlite3.h',
+                       '/usr/include/llvm']
         detected_distro = distro.detect()
 
-        if detected_distro.name == "fedora" or detected_distro.name == "redhat" :
+        if detected_distro.name == "fedora" or detected_distro.name == "redhat":
             deps += ['gcc-g++', 'zlib-devel', 'sqlite-devel']
         if detected_distro.name == "fedora":
             deps += ['llvm-devel']
@@ -75,19 +73,20 @@ class Smatch(Test):
         full_url = src_url + '/snapshot/' + src_commit + '.tar.gz'
         tarball = self.fetch_asset(full_url)
         archive.extract(tarball, self.srcdir)
-        self.log.info("Tarball: %s", tarball)
-        process.run('cp -r %s /tmp/' % self.srcdir)
-
         srcdir = 'smatch-' + src_commit
+        data_dir = os.path.abspath(self.datadir)
         self.srcdir = os.path.join(self.srcdir, srcdir)
+
         os.chdir(self.srcdir)
+        p1 = 'patch -p1 < %s/%s' % (data_dir, 'install-scripts.patch')
+        process.run(p1, shell=True)
         build.make(self.srcdir)
 
-    def test(self):
+    def test_install(self):
 
         os.chdir(self.srcdir)
-        self.log.info ("self.srcdir: %s" % self.srcdir)
-        process.system('make install')
-        
+        self.log.info("self.srcdir: %s" % self.srcdir)
+        process.run('PREFIX=/usr make install', shell=True)
+
 if __name__ == "__main__":
     main()

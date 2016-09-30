@@ -1,0 +1,12 @@
+set size 100000 100000000
+set location /vzt
+set seed 900
+set number 10000000
+set subdirectories 5000
+set read 40960 65536000
+set write 40960 65536000
+set transactions 10000
+set bias create 40
+set bias read 60
+run xfs-0-result.txt
+quit

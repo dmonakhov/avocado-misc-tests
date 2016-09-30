@@ -1,0 +1,38 @@
+diff --git a/Makefile b/Makefile
+index 97d31ea..5da5943 100644
+--- a/Makefile
++++ b/Makefile
+@@ -46,8 +46,8 @@ ifeq ($(HAVE_GCC_DEP),yes)
+ BASIC_CFLAGS += -Wp,-MD,$(@D)/.$(@F).d
+ endif
+ 
+-DESTDIR=
+-PREFIX=$(HOME)
++DESTDIR?=
++PREFIX?=$(HOME)
+ BINDIR=$(PREFIX)/bin
+ LIBDIR=$(PREFIX)/lib
+ MANDIR=$(PREFIX)/share/man
+@@ -82,6 +82,7 @@ SMATCH_DATA=smatch_data/kernel.allocation_funcs smatch_data/kernel.balanced_func
+ 	smatch_data/kernel.dev_queue_xmit smatch_data/kernel.returns_err_ptr \
+ 	smatch_data/kernel.dma_funcs smatch_data/kernel.returns_held_funcs \
+ 	smatch_data/kernel.no_return_funcs
++SMATCH_SCRIPTS=$(shell ls smatch_scripts/* )
+ 
+ PROGRAMS=test-lexing test-parsing obfuscate compile graph sparse \
+ 	 test-linearize example test-unssa test-dissect ctags
+@@ -195,12 +196,14 @@ install: all-installable
+ 	$(Q)install -d $(DESTDIR)$(INCLUDEDIR)/sparse
+ 	$(Q)install -d $(DESTDIR)$(PKGCONFIGDIR)
+ 	$(Q)install -d $(DESTDIR)$(SMATCHDATADIR)/smatch_data
++	$(Q)install -d $(DESTDIR)$(SMATCHDATADIR)/smatch_scripts
+ 	$(foreach f,$(INST_PROGRAMS),$(call INSTALL_EXEC,$f,$(BINDIR)))
+ 	$(foreach f,$(INST_MAN1),$(call INSTALL_FILE,$f,$(MAN1DIR)))
+ 	$(foreach f,$(LIBS),$(call INSTALL_FILE,$f,$(LIBDIR)))
+ 	$(foreach f,$(LIB_H),$(call INSTALL_FILE,$f,$(INCLUDEDIR)/sparse))
+ 	$(call INSTALL_FILE,sparse.pc,$(PKGCONFIGDIR))
+ 	$(foreach f,$(SMATCH_DATA),$(call INSTALL_FILE,$f,$(SMATCHDATADIR)))
++	$(foreach f,$(SMATCH_SCRIPTS),$(call INSTALL_EXEC,$f,$(SMATCHDATADIR)))
+ 
+ sparse.pc: sparse.pc.in
+ 	$(QUIET_GEN)sed $(SED_PC_CMD) sparse.pc.in > sparse.pc

@@ -19,8 +19,6 @@ import os
 
 from avocado import Test
 from avocado import main
-from avocado.utils import archive
-from avocado.utils import build
 from avocado.utils import process
 
 
@@ -35,7 +33,7 @@ class KVMXfstests(Test):
         """
         self.xfsdir = '/devel/xfstests-bld'
         self.kernel = self.fetch_asset('http://bob.qa.sw.ru/pub/bzImage-715dca9a4')
-        self.root_fs =  self.fetch_asset('http://bob.qa.sw.ru/pub/root_fs.img')
+        self.root_fs = self.fetch_asset('http://bob.qa.sw.ru/pub/root_fs.img')
         self.config = self.fetch_asset('http://bob.qa.sw.ru/pub/config.custom')
         process.system("cp %s %s/config.custom" % (self.config, self.xfsdir))
         self.bdir = os.getcwd()
@@ -48,7 +46,7 @@ class KVMXfstests(Test):
         process.system('./gen-image --update')
         process.system('scp root_fs.img bob.qa.sw.ru:/var/www/html/pub/')
         os.chdir(self.bdir)
-        
+
     def test(self):
         """
         Execute 'kvm-xfstests' with appropriate parameters.

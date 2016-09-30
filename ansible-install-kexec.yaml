@@ -1,0 +1,18 @@
+---
+
+- hosts: all
+  tasks:
+    - name: Install git binary
+      dnf:
+        name: git
+        state: latest
+    - name: Fetch https://github.com/dmonakhov/kexec-reboot
+      git:
+        repo: https://github.com/dmonakhov/kexec-reboot
+        dest: /tmp/kexec-reboot.git
+
+    - name: Install kexec
+      make:
+        target: install
+        chdir: /tmp/kexec-reboot.git
+      

@@ -1,0 +1,12 @@
+!mux
+
+XFSTESTS_IMG: /d/xfstests-dmonakhov-root_fs.img.x86_64.dev
+XFSTESTS_TESTS: -g auto -X shared/004
+XFSTESTS_FS_CONFIG: -c 4k
+
+#original:
+#  KERNEL: /d/kernel/vz/vzkernel.git/bzImage.orig
+with-patch:
+  KERNEL: /d/kernel/vz/vzkernel.git/bzImage
+
+
