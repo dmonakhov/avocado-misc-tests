@@ -15,16 +15,14 @@
 # Author: Dmitry Monakhov <dmonakhov@gmail.com>
 #
 
-
-
 import os
 
 from avocado import Test
 from avocado import main
 from avocado.utils import archive
-from avocado.utils import build
 from avocado.utils import process
 from avocado.utils.software_manager import SoftwareManager
+
 
 class PostTest(Test):
 
@@ -44,16 +42,16 @@ class PostTest(Test):
         if not sm.check_installed("gcc") and not sm.install("gcc"):
             self.error("Gcc is needed for the test to be run")
 
-        locations= ['ftp://ftp.uk.debian.org/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz' ,
-                    'http://ftp.gva.es/mirror/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz',
-                    'ftp://ftp.nz.freebsd.org/pub/debian-amd64/debian-amd64/pool/main/p/postmark/postmark_1.51.orig.tar.gz']
+        locations = ['ftp://ftp.uk.debian.org/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz',
+                     'http://ftp.gva.es/mirror/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz',
+                     'ftp://ftp.nz.freebsd.org/pub/debian-amd64/debian-amd64/pool/main/p/postmark/postmark_1.51.orig.tar.gz']
         tarball = self.fetch_asset('postmark-1.51.tar.gz', locations=locations,
                                    algorithm='sha1',
                                    asset_hash='2cf0be75e3cb255f36fb1f3e412bcf8f81b39969')
         archive.extract(tarball, self.srcdir)
         postmark_version = os.path.basename(tarball.split('.tar.')[0])
         self.log.info("postmark_version %s" % postmark_version)
-        process.run ('ls -lh %s' % self.srcdir)
+        process.run('ls -lh %s' % self.srcdir)
         self.srcdir = os.path.join(self.srcdir, postmark_version)
         os.chdir(self.srcdir)
         process.run('cc -O3 postmark-1.51.c -o postmark')
@@ -64,7 +62,7 @@ class PostTest(Test):
         """
         config = self.params.get('config', default='files1k_trans1k.pmrc')
         cmd = '%s/postmark %s' % (self.srcdir,
-                             os.path.join(self.datadir, config))
+                                  os.path.join(self.datadir, config))
         process.system(cmd)
 
 

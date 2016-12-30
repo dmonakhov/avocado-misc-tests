@@ -29,11 +29,7 @@ from avocado.utils import distro
 class Smatch(Test):
 
     '''
-    Smatch -- The Source Matcher, Official repo git://repo.or.cz/smatch.git
-    Kernel usage example:
-       make C=1 CHECK="/path/to/smatch --full-path -p=kernel" | tee warns.txt
-    After the compile finishes logs stored to smatch_log and smatch_error
-    #perf key values = [ 'warning', 'error' ]
+    stress-ng http://kernel.ubuntu.com/~cking/stress-ng/
 
     '''
 
@@ -41,21 +37,22 @@ class Smatch(Test):
         '''
         Build smatch
         '''
-        src_url = 'http://repo.or.cz/smatch.git'
-        src_commit = '78b2ea6'
+        src_url = 'http://kernel.ubuntu.com/~cking/tarballs/stress-ng/stress-ng-0.07.13.tar.gz'
 
-        deps = ['make', 'gcc']
-        header_deps = ['/usr/include/sqlite3.h',
-                       '/usr/include/llvm']
+        deps = ['make', 'gcc', 'git']
+        header_deps = []
         detected_distro = distro.detect()
 
         if detected_distro.name == "fedora" or detected_distro.name == "redhat":
-            deps += ['gcc-g++', 'zlib-devel', 'sqlite-devel']
-        if detected_distro.name == "fedora":
-            deps += ['llvm-devel']
+            deps += ['libaio-devel', 'libattr-devel',
+                     'libbsd-devel', 'libcap-devel', 'libgcrypt-devel',
+                     'keyutils-libs-devel', 'lksctp-tools-devel', 'zlib-devel']
+            
         if detected_distro.name == "Ubuntu" or detected_distro.name == "debian":
-            deps += ['g++', 'zlib1g-dev', 'llvm-dev', 'libsqlite3-dev', 'libedit-dev']
-
+            deps += ['libaio-dev', 'libapparmor-dev', 'libattr1-dev',
+                     'libbsd-dev', 'libcap-dev', 'libgcrypt11-dev',
+                     'libkeyutils-dev', 'libsctp-dev', 'zlib1g-dev']
+            
         sm = SoftwareManager()
         for pkg in deps:
             if not sm.check_installed(pkg) and not sm.install(pkg):
@@ -70,23 +67,23 @@ class Smatch(Test):
                 else:
                     sm.install(pkg)
 
-        full_url = src_url + '/snapshot/' + src_commit + '.tar.gz'
-        tarball = self.fetch_asset(full_url)
+        tarball = self.fetch_asset(src_url)
         archive.extract(tarball, self.srcdir)
-        srcdir = 'smatch-' + src_commit
-        data_dir = os.path.abspath(self.datadir)
-        self.srcdir = os.path.join(self.srcdir, srcdir)
 
-        os.chdir(self.srcdir)
-        p1 = 'patch -p1 < %s/%s' % (data_dir, 'install-scripts.patch')
-        process.run(p1, shell=True)
+
+        tarball = self.fetch_asset(src_url)
+        data_dir = os.path.abspath(self.datadir)
+        archive.extract(tarball, self.srcdir)
+        version = os.path.basename(tarball.split('.tar.')[0])
+        self.srcdir = os.path.join(self.srcdir, version)
+        self.log.debug('verions:%s srcdir:%s' % (version, self.srcdir))
         build.make(self.srcdir)
 
-    def test_install(self):
+    def test(self):
 
         os.chdir(self.srcdir)
-        self.log.info("self.srcdir: %s" % self.srcdir)
-        process.run('PREFIX=/usr make install', shell=True)
+        #process.system('./stress-ng --cpu 0 --cpu-method all -t 2h')
+        process.system('./stress-ng --all 2')
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,20 @@
+#! /bin/sh -e 
+
+rev=HEAD^
+
+if [ "$1" != "" ]; then
+    rev=$1
+fi
+
+git diff --name-only $rev | \
+    while read f; do
+	if [ "`basename -s .py $f`" == "$f" ]; then
+	    continue
+	fi
+	
+	echo "Inspekt $f"
+	inspekt lint $f 
+	inspekt indent $f || inspekt indent --fix $f
+	inspekt style $f
+    done
+
