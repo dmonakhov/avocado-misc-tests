@@ -82,8 +82,8 @@ class Smatch(Test):
     def test(self):
 
         os.chdir(self.srcdir)
-        #process.system('./stress-ng --cpu 0 --cpu-method all -t 2h')
-        process.system('./stress-ng --all 2')
+        process.system('./stress-ng --cpu 0 --cpu-method all --vm 1 --vm-bytes 4G --verify -v --metrics -t 48h')
+        #process.system('./stress-ng --all 2')
 
 if __name__ == "__main__":
     main()
